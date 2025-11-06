@@ -212,6 +212,11 @@ class Importer {
 		if(filepathFormat) {
 			source.setFilepathFormatFunction(filepathFormat);
 		}
+		if(typeof options === "object" && options.subtype) {
+			if(typeof source.setSubtype === "function") {
+				source.setSubtype(options.subtype);
+			}
+		}
 
 		this.sources.push(source);
 	}

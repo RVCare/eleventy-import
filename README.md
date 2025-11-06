@@ -83,12 +83,16 @@ npx @11ty/import youtubeuser UCskGTioqrMBcw8pd14_334A
 ```
 
 #### WordPress
-
 ```sh
 # Import *all* posts from the WordPress API
 # Draft posts available when WORDPRESS_USERNAME and WORDPRESS_PASSWORD environment
 # variables are supplied, read more: https://www.11ty.dev/docs/environment-vars/
 npx @11ty/import wordpress https://blog.fontawesome.com
+```
+
+```sh
+# Import pages (or other subtypes, e.g., categories, tags)
+npx @11ty/import wordpress https://blog.fontawesome.com --subtype=pages
 ```
 
 #### Atom Feeds

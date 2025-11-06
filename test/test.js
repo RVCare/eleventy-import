@@ -8,6 +8,7 @@ import { Importer } from "../src/Importer.js";
 import { DataSource } from "../src/DataSource.js";
 import { Persist } from "../src/Persist.js";
 import { Fetcher } from "../src/Fetcher.js";
+import { WordPressApi } from "../src/DataSource/WordPressApi.js";
 
 function cleanContent(content) {
 	// trim extra whitespace (dirty workaround for trailing whitespace)
@@ -150,6 +151,17 @@ We’ll keep fine-tuning that sweet, sweet recipe until February. Believe us; th
 
 	assert.equal(post.content.length, 1634);
 	assert.equal(post.authors[0].name, "Matt Johnson");
+});
+
+test('WordPressApi getUrl supports default and custom subtype', (t) => {
+  const wp = new WordPressApi('https://example.com');
+  // Default subtype 'posts'
+  let urlDefault = wp.getUrl()(1);
+  assert.equal(urlDefault, 'https://example.com/wp-json/wp/v2/posts/?page=1&per_page=100');
+  // Custom subtype
+  wp.setSubtype('pages');
+  let urlPages = wp.getUrl()(2);
+  assert.equal(urlPages, 'https://example.com/wp-json/wp/v2/pages/?page=2&per_page=100');
 });
 
 test("addSource using DataSource", async (t) => {

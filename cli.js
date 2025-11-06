@@ -67,6 +67,10 @@ let { positionals, values } = parseArgs({
 			type: "string",
 			default: "",
 		},
+		subtype: {
+			type: "string",
+			default: "",
+		},
 		preserve: {
 			type: "string",
 			default: "",
@@ -75,7 +79,7 @@ let { positionals, values } = parseArgs({
 });
 
 let [ type, target ] = positionals;
-let { quiet, dryrun, output, help, version, overwrite, cacheduration, format, persist, assetrefs, within, preserve } = values;
+let { quiet, dryrun, output, help, version, overwrite, cacheduration, format, persist, assetrefs, within, subtype, preserve } = values;
 
 if(version) {
 	const require = createRequire(import.meta.url);
@@ -120,6 +124,9 @@ if(help) {
   npx @11ty/import [type] [target] --assetrefs=absolute
   npx @11ty/import [type] [target] --assetrefs=colocate
   npx @11ty/import [type] [target] --assetrefs=disabled
+
+  # WordPress subtype (e.g., posts, pages, categories, tags)
+  npx @11ty/import wordpress [target] --subtype=pages
 `);
 
 	process.exit();
@@ -142,6 +149,15 @@ importer.setVerbose(!quiet);
 importer.setSafeMode(!overwrite);
 importer.setDryRun(dryrun);
 importer.addSource(type, target);
+
+// Apply WordPress subtype if specified
+if (subtype) {
+	for (let source of importer.getSourcesForType(type)) {
+		if (typeof source.setSubtype === "function") {
+			source.setSubtype(subtype);
+		}
+	}
+}
 
 // TODO wire these up to CLI
 importer.setDraftsFolder("drafts");
@@ -169,4 +185,3 @@ let entries = await importer.getEntries({
 await importer.toFiles(entries);
 
 importer.logResults();
-

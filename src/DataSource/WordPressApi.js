@@ -18,6 +18,15 @@ class WordPressApi extends DataSource {
 		this.url = url;
 	}
 
+	/**
+	 * Set the WordPress API subtype to fetch (e.g., posts, pages, categories, tags).
+	 * @param {string} subtype
+	 */
+	setSubtype(subtype) {
+		this.subtype = subtype;
+		return this;
+	}
+
 	// some pagination errors just mean there are no more pages
 	async isErrorWorthWorryingAbout(e) {
 		if(e?.cause instanceof Response) {
@@ -54,6 +63,7 @@ class WordPressApi extends DataSource {
 	getUrl() {
 		// return function for paging
 		return (pageNumber = 1) => {
+			const subtype = this.subtype || "posts";
 			// status=publish,future,draft,pending,private
 			// status=any
 
@@ -71,7 +81,7 @@ class WordPressApi extends DataSource {
 				statusStr = `&status=${encodeURIComponent("publish,draft")}`;
 			}
 
-			return this.#getSubtypeUrl("posts", `?page=${pageNumber}&per_page=100${statusStr}${withinStr}`);
+			return this.#getSubtypeUrl(subtype, `?page=${pageNumber}&per_page=100${statusStr}${withinStr}`);
 		};
 	}
 
@@ -122,7 +132,10 @@ class WordPressApi extends DataSource {
 		}
 	}
 
-	async #getTags(ids) {
+	async #getTags(ids = []) {
+		if(!Array.isArray(ids) || ids.length === 0) {
+			return [];
+		}
 		return Promise.all(ids.map(tagId => {
 			// Warning: extra API call
 			return this.getData(this.#getTagsUrl(tagId), this.getType()).then(tagData => {
@@ -131,7 +144,10 @@ class WordPressApi extends DataSource {
 		}));
 	}
 
-	async #getCategories(ids) {
+	async #getCategories(ids = []) {
+		if(!Array.isArray(ids) || ids.length === 0) {
+			return [];
+		}
 		let categoryNames = await Promise.all(ids.map(categoryId => {
 			// Warning: extra API call
 			return this.getData(this.#getCategoryUrl(categoryId), this.getType()).then(categoryData => {
